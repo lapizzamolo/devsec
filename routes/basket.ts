@@ -15,6 +15,12 @@ const challenges = require('../data/datacache').challenges
 module.exports = function retrieveBasket () {
   return (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id
+    const user = security.authenticatedUsers.from(req)
+
+    if (!user || !id || id === 'undefined' || id === 'null' || id === 'NaN' || !user.bid || user.bid !== id) {
+      return res.status(403).json({ message: "Vous n'êtes pas autorisé à accéder à ce panier." })
+    }
+
     BasketModel.findOne({ where: { id }, include: [{ model: ProductModel, paranoid: false, as: 'Products' }] })
       .then((basket: BasketModel | null) => {
         /* jshint eqeqeq:false */
